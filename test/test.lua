@@ -7,14 +7,25 @@ local mytester
 --e.g. usage: th -ltorchx -e "torchx.test{'SoftMaxTree','BlockSparse'}"
 
 function torchxtest.treemax()
-	
+	local treeSize = {3,3,2}
+	-- 13,14,25                18 = 3x3x2
+	--       6,7,12            6 = 3x2
+	--           7,5           2 = 2
+	local tensor = torch.Tensor{0,0,0,0,0,13, 1,1,1,1,1,10, 0,6, 2,5, 7,5}
+	local maxVal, maxIdx = torch.treemax(tensor, treeSize)
+	mytester:assert(maxVal == 7, "treemax maxVal 1")
+	mytester:assert(maxIdx == 17, "treemax maxIdx 1")
+	-- 27,14,25  
+	local tensor = torch.Tensor{0,0,0,0,0,27, 1,1,1,1,1,10, 0,6, 2,5, 7,5}
+	local maxVal, maxIdx = torch.treemax(tensor, treeSize)
+	mytester:assert(maxVal == 27, "treemax maxVal 2")
+	mytester:assert(maxIdx == 6, "treemax maxIdx 2")
 end
 
 function torchx.test(tests)
    local oldtype = torch.getdefaulttensortype()
    torch.setdefaulttensortype('torch.FloatTensor')
    math.randomseed(os.time())
-   jac = nn.Jacobian
    mytester = torch.Tester()
    mytester:add(torchxtest)
    mytester:run(tests)
