@@ -7,9 +7,15 @@ function torch.treemax(tensor, treeSize)
       tmb = {
          mean = tensor.new(),
          max = tensor.new(),
-         idx = torch.LongTensor()
+         idx = torch.LongTensor(),
+         copy = tensor.new()
       }
       treeMaxBuffer[torch.type(tensor)] = tmb
+   end
+   
+   if not tensor:isContiguous() then
+      tmb.copy:resizeAs(tensor):copy(tensor)
+      tensor = tmb.copy
    end
    
    local lvl = tensor
