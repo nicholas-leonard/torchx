@@ -2,8 +2,13 @@ local torchxtest = {}
 local precision_forward = 1e-6
 local precision_backward = 1e-6
 local nloop = 50
+local mytester
 
 --e.g. usage: th -ltorchx -e "torchx.test{'SoftMaxTree','BlockSparse'}"
+
+function torchxtest.treemax()
+	
+end
 
 function torchx.test(tests)
    local oldtype = torch.getdefaulttensortype()

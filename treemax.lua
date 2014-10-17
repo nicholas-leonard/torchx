@@ -9,7 +9,6 @@ function torch.treemax(tensor, treeSize)
          max = tensor.new(),
          idx = torch.LongTensor()
       }
-      
       treeMaxBuffer[torch.type(tensor)] = tmb
    end
    
@@ -18,7 +17,7 @@ function torch.treemax(tensor, treeSize)
    for i=1,#treeSize do
       lvl = lvl:view(treeSize[i], -1)
       local lvlStride = lvl:size(2)
-      if i < #treeSize do
+      if i < #treeSize then
          tmb.mean:mean(lvl, 2)
       end
       tmb.max:max(tmb.idx, tmb.mean:select(2,1), 1)
