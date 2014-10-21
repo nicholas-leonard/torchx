@@ -22,6 +22,12 @@ function torchxtest.treemax()
 	mytester:assert(maxIdx == 6, "treemax maxIdx 2")
 end
 
+function torchxtest.find()
+   local tensor = torch.Tensor{1,2,3,4,5,6,0.6,0,2}
+   local indice = torch.find(tensor, 2)
+   mytester:assertTensorEq(indice, torch.LongTensor{2,9}, 0.00001, "find err")
+end
+
 function torchx.test(tests)
    local oldtype = torch.getdefaulttensortype()
    torch.setdefaulttensortype('torch.FloatTensor')
