@@ -72,7 +72,9 @@ Example:
         }
     }
 }
-> -- fills empty tensors
+```
+It also creates missing tensors:
+```lua
 > t2, t3 = torch.remap(t2, nil, function(x, y) y:resizeAs(x):copy(x) end)
 > print(t3)
 {
@@ -87,7 +89,9 @@ Example:
         }
     }
 }
-> -- tensor 1 has priority
+```
+When in doubt, first tensor has priority:
+```lua
 > t4, t2 = torch.remap({torch.DoubleTensor()}, t2, function(x, y) x:resize(y:size()):copy(y) end, torch.LongTensor())
 > print(t4)
 {
@@ -107,15 +111,4 @@ Example:
         }
     }
 }
-> -- also works with tensors
-> print(torch.remap(torch.randn(3), torch.randn(3), function(x, y) x:add(y) end))
--0.0486
--0.8466
--2.0608
-[torch.DoubleTensor of dimension 3]
-
--0.0025
- 0.2365
--1.4771
-[torch.DoubleTensor of dimension 3]
 ```
