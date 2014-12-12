@@ -1,11 +1,22 @@
 torchx
 ======
 
-This package contains various torch extensions.
+This package contains various torch extensions:
+ * [concat](#torch.concat) : concatenates a table of tensors.
+ * [group](#torch.group) : sorts and groups similar tensor variables together. 
+ * [remap](#torch.remap) : recursively applies a function to tables of Tensors.
+ * 
+
+<a name='torch.concat'/>
+### [res] torch.concat([res], tensors, [dim]) ###
+Concatenates a table of Tensors along dimension `dim`.
+ * `res` is a tensor holding the concatenation of Tensors `tensor`.
+ * `tensors` is a table of tensors. Each tensor should have the same amount of dimensions and the same size for non-`dim` dimensions.
+ * `dim` is the dimension along which the tensors will be concatenated.
 
 <a name='torch.group'/>
 ### [res, val, idx] torch.group([val, idx], tensor, [samegrp, desc]) ###
-Sorts and groups similar tensor variables.
+Sorts and groups similar tensor variables together.
  * `res` is a table of `{idx=torch.LongTensor,val=torch.Tensor}`.
  * `val` is a Tensor of the same type as `tensor`. It will be used to store and return the sorted values.
  * `idx` is a `torch.LongTensor` used to store the sorted indices.
@@ -39,7 +50,7 @@ Example:
 
 <a name='torch.remap'/>
 ### [t1, t2] torch.remap(t1, t2, f(x,y) [p1, p2]) ###
-Recursively applies function `f(x,y)` to table of Tensors (or Tensors)
+Recursively applies function `f(x,y)` [to tables [of tables,...] of] Tensors
 `t1` and `t2`. When prototypes `p1` or `p2` are provided, they are used 
 to initialized any missing Tensors in `t1` or `t2`.
 
