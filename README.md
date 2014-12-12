@@ -3,16 +3,40 @@ torchx
 
 This package contains various torch extensions:
  * [concat](#torch.concat) : concatenates a table of tensors.
+ * [find](#torch.find) : finds all indices of a given value.
  * [group](#torch.group) : sorts and groups similar tensor variables together. 
  * [remap](#torch.remap) : recursively applies a function to tables of Tensors.
- * 
+
 
 <a name='torch.concat'/>
 ### [res] torch.concat([res], tensors, [dim]) ###
 Concatenates a table of Tensors along dimension `dim`.
  * `res` is a tensor holding the concatenation of Tensors `tensor`.
  * `tensors` is a table of tensors. Each tensor should have the same amount of dimensions and the same size for non-`dim` dimensions.
- * `dim` is the dimension along which the tensors will be concatenated.
+ * `dim` is the dimension along which the tensors will be concatenated. Defaults to 1.
+
+Example:
+```lua
+> res = torch.concat({torch.rand(2,3),torch.randn(2,1),torch.randn(2,2)},2)
+> print(res)
+ 0.8621  0.7776  0.3284 -1.2884 -0.4939  0.6049
+ 0.8404  0.8996  0.5704  0.3911 -0.0428 -1.4627
+[torch.DoubleTensor of dimension 2x6]
+```
+
+<a name='torch.find'/>
+### [res] torch.find(tensor, val) ###
+Finds all indices of a given value `val` in Tensor `tensor`. Returns a `torch.LongTensor` of these indices.
+
+Example:
+```lua
+> res = torch.find(torch.Tensor{1,2,3,1,1,2}, 1)
+> print(res)
+ 1
+ 4
+ 5
+[torch.LongTensor of dimension 3]
+```
 
 <a name='torch.group'/>
 ### [res, val, idx] torch.group([val, idx], tensor, [samegrp, desc]) ###
