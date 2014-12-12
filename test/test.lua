@@ -70,6 +70,24 @@ function torchxtest.group()
    mytester:assertTensorNe(idx2, idx, 0.00001)
 end
 
+function torchxtest.concat()
+   local tensors = {torch.randn(3,4), torch.randn(3,6), torch.randn(3,8)}
+   local res = torch.concat(tensors, 2)
+   local res2 = torch.Tensor(3,4+6+8)
+   res2:narrow(2,1,4):copy(tensors[1])
+   res2:narrow(2,5,6):copy(tensors[2])
+   res2:narrow(2,11,8):copy(tensors[3])
+   mytester:assertTensorEq(res,res2,0.00001)
+   
+   local tensors = {torch.randn(2,3,4), torch.randn(2,3,6), torch.randn(2,3,8)}
+   local res = torch.concat(tensors, 3)
+   local res2 = torch.Tensor(2,3,4+6+8)
+   res2:narrow(3,1,4):copy(tensors[1])
+   res2:narrow(3,5,6):copy(tensors[2])
+   res2:narrow(3,11,8):copy(tensors[3])
+   mytester:assertTensorEq(res,res2,0.00001)
+end
+
 function torchx.test(tests)
    local oldtype = torch.getdefaulttensortype()
    torch.setdefaulttensortype('torch.FloatTensor')
