@@ -35,7 +35,7 @@ function torch.group(sorted, index, tensor, samegrp, desc)
          end
          
          groups[start_val] = {
-            index=index:narrow(1, start_idx, idx-start_idx), 
+            idx=index:narrow(1, start_idx, idx-start_idx), 
             val=sorted:narrow(1, start_idx, idx-start_idx)
          }
          start_val = val
