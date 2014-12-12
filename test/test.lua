@@ -4,7 +4,7 @@ local precision_backward = 1e-6
 local nloop = 50
 local mytester
 
---e.g. usage: th -ltorchx -e "torchx.test{'SoftMaxTree','BlockSparse'}"
+--e.g. usage: th -ltorchx -e "torchx.test{'treemax','find'}"
 
 function torchxtest.treemax()
 	local treeSize = {3,3,2}
@@ -48,6 +48,26 @@ function torchxtest.remap()
    mytester:assert(torch.type(t4[2][1]) == 'torch.LongTensor', "error remap f copy")
    mytester:assert(torch.type(t4[2][2]) == 'torch.LongTensor', "error remap g copy")
    mytester:assert(torch.type(t4[2][3][1]) == 'torch.LongTensor', "error remap h copy")
+end
+
+function torchxtest.group()
+   local tensor = torch.Tensor{3,4,5,1,2, 5,3,2,1,3, 5,2,3}
+   local groups, val, idx = torch.group(tensor)
+   mytester:assert(groups[1].index:size(1) == 2)
+   mytester:assert(groups[2].index:size(1) == 3)
+   mytester:assert(groups[3].index:size(1) == 4)
+   mytester:assert(groups[4].index:size(1) == 1)
+   mytester:assert(groups[5].index:size(1) == 3)
+   local tensor2 = tensor:index(1, torch.randperm(tensor:size(1)):long())
+   local val2, idx2 = torch.Tensor(), idx:clone()
+   local groups = torch.group(val2, idx2, tensor2)
+   mytester:assert(groups[1].index:size(1) == 2)
+   mytester:assert(groups[2].index:size(1) == 3)
+   mytester:assert(groups[3].index:size(1) == 4)
+   mytester:assert(groups[4].index:size(1) == 1)
+   mytester:assert(groups[5].index:size(1) == 3)
+   mytester:assertTensorEq(val, val2, 0.00001)
+   mytester:assertTensorNe(idx2, idx, 0.00001)
 end
 
 function torchx.test(tests)
