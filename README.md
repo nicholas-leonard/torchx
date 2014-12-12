@@ -1,7 +1,41 @@
 torchx
 ======
 
-extensions to torch
+This package contains various torch extensions.
+
+<a name='torch.group'/>
+### [res, val, idx] torch.group([val, idx], tensor, [samegrp, desc]) ###
+Sorts and groups similar tensor variables.
+ * `res` is a table of `{idx=torch.LongTensor,val=torch.Tensor}`.
+ * `val` is a Tensor of the same type as `tensor`. It will be used to store and return the sorted values.
+ * `idx` is a `torch.LongTensor` used to store the sorted indices.
+ * `tensor` is a Tensor that will have its values sorted, and then grouped by the `samegrp` function.
+ * `samegrp` is a function taking two argument : `first_val` is the first value of the current group, while `val` is the current value of the current group. When the function returns true, it is assumed that `val` is of the same group as `first_val`. Defaults to `function(first_val, val) return first_val == val; end`
+ * `desc` is a boolean indicating whether the `tensor` gets sorted in descending order. Defaults to false.
+
+Example:
+```lua
+> tensor = torch.Tensor{5,3,4,5,3,5}
+> res, val, idx = torch.group(tensor)
+> res
+{
+  3 : 
+    {
+      idx : LongTensor - size: 2
+      val : DoubleTensor - size: 2
+    }
+  4 : 
+    {
+      idx : LongTensor - size: 1
+      val : DoubleTensor - size: 1
+    }
+  5 : 
+    {
+      idx : LongTensor - size: 3
+      val : DoubleTensor - size: 3
+    }
+}
+```
 
 <a name='torch.remap'/>
 ### [t1, t2] torch.remap(t1, t2, f(x,y) [p1, p2]) ###
