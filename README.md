@@ -1,11 +1,46 @@
 torchx
 ======
 
-This package contains various torch extensions.
+This package contains various torch extensions:
+ * [concat](#torch.concat) : concatenates a table of tensors.
+ * [find](#torch.find) : finds all indices of a given value.
+ * [group](#torch.group) : sorts and groups similar tensor variables together. 
+ * [remap](#torch.remap) : recursively applies a function to tables of Tensors.
+
+
+<a name='torch.concat'/>
+### [res] torch.concat([res], tensors, [dim]) ###
+Concatenates a table of Tensors along dimension `dim`.
+ * `res` is a tensor holding the concatenation of Tensors `tensor`.
+ * `tensors` is a table of tensors. Each tensor should have the same amount of dimensions and the same size for non-`dim` dimensions.
+ * `dim` is the dimension along which the tensors will be concatenated. Defaults to 1.
+
+Example:
+```lua
+> res = torch.concat({torch.rand(2,3),torch.randn(2,1),torch.randn(2,2)},2)
+> print(res)
+ 0.8621  0.7776  0.3284 -1.2884 -0.4939  0.6049
+ 0.8404  0.8996  0.5704  0.3911 -0.0428 -1.4627
+[torch.DoubleTensor of dimension 2x6]
+```
+
+<a name='torch.find'/>
+### [res] torch.find(tensor, val) ###
+Finds all indices of a given value `val` in Tensor `tensor`. Returns a `torch.LongTensor` of these indices.
+
+Example:
+```lua
+> res = torch.find(torch.Tensor{1,2,3,1,1,2}, 1)
+> print(res)
+ 1
+ 4
+ 5
+[torch.LongTensor of dimension 3]
+```
 
 <a name='torch.group'/>
 ### [res, val, idx] torch.group([val, idx], tensor, [samegrp, desc]) ###
-Sorts and groups similar tensor variables.
+Sorts and groups similar tensor variables together.
  * `res` is a table of `{idx=torch.LongTensor,val=torch.Tensor}`.
  * `val` is a Tensor of the same type as `tensor`. It will be used to store and return the sorted values.
  * `idx` is a `torch.LongTensor` used to store the sorted indices.
@@ -39,7 +74,7 @@ Example:
 
 <a name='torch.remap'/>
 ### [t1, t2] torch.remap(t1, t2, f(x,y) [p1, p2]) ###
-Recursively applies function `f(x,y)` to table of Tensors (or Tensors)
+Recursively applies function `f(x,y)` [to tables [of tables,...] of] Tensors
 `t1` and `t2`. When prototypes `p1` or `p2` are provided, they are used 
 to initialized any missing Tensors in `t1` or `t2`.
 
@@ -72,7 +107,9 @@ Example:
         }
     }
 }
-> -- fills empty tensors
+```
+It also creates missing tensors:
+```lua
 > t2, t3 = torch.remap(t2, nil, function(x, y) y:resizeAs(x):copy(x) end)
 > print(t3)
 {
@@ -87,7 +124,9 @@ Example:
         }
     }
 }
-> -- tensor 1 has priority
+```
+When in doubt, first tensor has priority:
+```lua
 > t4, t2 = torch.remap({torch.DoubleTensor()}, t2, function(x, y) x:resize(y:size()):copy(y) end, torch.LongTensor())
 > print(t4)
 {
@@ -107,15 +146,4 @@ Example:
         }
     }
 }
-> -- also works with tensors
-> print(torch.remap(torch.randn(3), torch.randn(3), function(x, y) x:add(y) end))
--0.0486
--0.8466
--2.0608
-[torch.DoubleTensor of dimension 3]
-
--0.0025
- 0.2365
--1.4771
-[torch.DoubleTensor of dimension 3]
 ```
