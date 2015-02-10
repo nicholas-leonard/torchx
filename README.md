@@ -7,6 +7,9 @@ This package contains various torch extensions:
  * [group](#torch.group) : sorts and groups similar tensor variables together. 
  * [remap](#torch.remap) : recursively applies a function to tables of Tensors.
 
+And some paths extensions :
+ * [indexdir](#paths.indexdir) : index a directory of millions of files for faster listing.
+
 
 <a name='torch.concat'/>
 ### [res] torch.concat([res], tensors, [dim]) ###
@@ -147,3 +150,20 @@ When in doubt, first tensor has priority:
     }
 }
 ```
+
+<a name="paths.indexdir"/>
+### [obj] paths.indexdir(path, ext, use_cache) ###
+```lua
+files = torch.indexdir("/path/to/files/", 'png', true)
+images = {}
+for i=1,files:size() do
+   local img = image.load(files:filename(i))
+   table.insert(images, img)
+end
+```
+
+This function can be used to create an object indexing all files having 
+extensions `ext` (a string or a list thereof) in directory `path`. 
+Useful for directories containing many thousands of files. The function 
+caches the resulting list to disk in `/tmp` such that it can be used 
+for later calls when `use_cache=true` (default is false).

@@ -15,7 +15,9 @@ description = {
 }
 
 dependencies = {
-   "torch >= 7.0"
+   "torch >= 7.0",
+   "paths >= 1",
+   "sys >= 1.1"
 }
 
 build = {
