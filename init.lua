@@ -13,3 +13,5 @@ torch.include('torchx', 'concat.lua')
 torch.include('torchx', 'indexdir.lua')
 
 torch.include('torchx', 'test.lua')
+
+md5 = require'torchx.md5'
