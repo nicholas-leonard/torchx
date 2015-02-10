@@ -1,4 +1,5 @@
 
+-- Ref.: A. https://github.com/facebook/fbcunn/blob/master/examples/imagenet/dataset.lua
 -- e.g. fileList = torch.indexdir("/path/to/files/", 'png', true)
 -- index the directory by creating a chartensor of files paths.
 -- returns an object with can be used to efficiently list files in dir
