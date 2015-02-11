@@ -152,6 +152,7 @@ When in doubt, first tensor has priority:
 }
 ```
 
+<a name='torch.md5'/>
 ### torch.md5 ##
 
 Pure Lua module copy-pasted from [this repo](https://github.com/kikito/md5.lua) (for some reasons I can't get 
