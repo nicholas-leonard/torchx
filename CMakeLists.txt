@@ -10,4 +10,5 @@ FIND_PACKAGE(Torch REQUIRED)
 
 FILE(GLOB luasrc *.lua)
 SET(luasrc ${luasrc} test/test.lua)
+SET(luasrc ${luasrc} md5/md5.lua)
 ADD_TORCH_PACKAGE(torchx "" "${luasrc}" "Torch extensions")

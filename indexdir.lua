@@ -3,16 +3,10 @@
 -- e.g. fileList = torch.indexdir("/path/to/files/", 'png', true)
 -- index the directory by creating a chartensor of files paths.
 -- returns an object with can be used to efficiently list files in dir
-function paths.indexdir(path, extensionList, use_cache)
+function paths.indexdir(pathList, extensionList, use_cache)
    extensionList = extensionList or {'jpg', 'png','JPG','PNG','JPEG', 'ppm', 'PPM', 'bmp', 'BMP'}
    extensionList = (torch.type(extensionList) == 'string') and {extensionList} or extensionList
    
-   -- repository name makes cache file unique
-   local findFile = path:gsub('/', '-th-') .. '---' .. table.concat(extensionList) .. '.txt'
-   findFile = paths.concat(paths.dirname(os.tmpname()), findFile)
-   -- find the image path names
-   local fileList = torch.CharTensor()  -- path to each image in dataset
-      
    -- define command-line tools, try your best to maintain OSX compatibility
    local wc = 'wc'
    local cut = 'cut'
@@ -22,19 +16,32 @@ function paths.indexdir(path, extensionList, use_cache)
       cut = 'gcut'
       find = 'gfind'
    end
+   
+   local fileList = torch.CharTensor()  -- path to each image in dataset
+   pathList = (torch.type(pathList) == 'string') and {pathList} or pathList
+   -- repository name makes cache file unique
+   local unique = table.concat(paths)..table.concat(extensionList)
+   -- use hash to make string shorter
+   local findFile = torch.md5.sumhexa(unique)
+   findFile = paths.concat(paths.dirname(os.tmpname()), findFile)
+   
+   if not (use_cache and paths.filep(findFile)) then 
+      if paths.filep(findFile) then
+         os.execute("rm "..findFile)
+      end
       
-   if not (use_cache and paths.filep(findFile)) then      
       -- Options for the GNU find command
       local findOptions = ' -iname "*.' .. extensionList[1] .. '"'
       for i=2,#extensionList do
          findOptions = findOptions .. ' -o -iname "*.' .. extensionList[i] .. '"'
       end
-
-      -- run "find" on each class directory, and concatenate all
-      -- those filenames into a single file containing all file paths
-      local command = find .. ' "' .. path .. '" ' .. findOptions .. ' > "' .. findFile .. '"'
-      
-      os.execute(command)
+         
+      for i, path in ipairs(pathList) do
+         -- run "find" on each  directory, and concatenate all
+         -- those filenames into a single file containing all file paths
+         local command = find .. ' "' .. path .. '" ' .. findOptions .. ' >> "' .. findFile .. '"'
+         os.execute(command)
+      end
    end
 
    -- load the large concatenated list of file paths to fileList 
