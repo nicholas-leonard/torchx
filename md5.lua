@@ -390,4 +390,4 @@ function md5.sum(s)
   return hex2binary(md5.sumhexa(s))
 end
 
-return md5
+torch.md5 = md5

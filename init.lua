@@ -5,6 +5,7 @@ ffi = require 'ffi'
 
 torchx = {}
 
+torch.include('torchx', 'md5.lua')
 torch.include('torchx', 'treemax.lua')
 torch.include('torchx', 'find.lua')
 torch.include('torchx', 'remap.lua')
@@ -14,4 +15,4 @@ torch.include('torchx', 'indexdir.lua')
 
 torch.include('torchx', 'test.lua')
 
-torch.md5 = require 'torchx.md5'
+
