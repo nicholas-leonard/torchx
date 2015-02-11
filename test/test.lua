@@ -26,6 +26,14 @@ function torchxtest.find()
    local tensor = torch.Tensor{1,2,3,4,5,6,0.6,0,2}
    local indice = torch.find(tensor, 2)
    mytester:assertTensorEq(indice, torch.LongTensor{2,9}, 0.00001, "find err")
+   
+   indice = indice.new()
+   indice:find(tensor, 2)
+   mytester:assertTensorEq(indice, torch.LongTensor{2,9}, 0.00001, "find err")
+   
+   local indiceTbl = torch.find(tensor, 2, true)
+   mytester:assert(torch.type(indiceTbl) == 'table', "find asTable type error")
+   mytester:assertTensorEq(indice, torch.LongTensor(indiceTbl), 0.00001, "find asTable value err")
 end
 
 function torchxtest.remap()
@@ -85,6 +93,9 @@ function torchxtest.concat()
    res2:narrow(3,1,4):copy(tensors[1])
    res2:narrow(3,5,6):copy(tensors[2])
    res2:narrow(3,11,8):copy(tensors[3])
+   mytester:assertTensorEq(res,res2,0.00001)
+   
+   res:zero():concat(tensors, 3)
    mytester:assertTensorEq(res,res2,0.00001)
 end
 
