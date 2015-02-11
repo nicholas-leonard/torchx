@@ -6,8 +6,9 @@ This package contains various torch extensions:
  * [find](#torch.find) : finds all indices of a given value.
  * [group](#torch.group) : sorts and groups similar tensor variables together. 
  * [remap](#torch.remap) : recursively applies a function to tables of Tensors.
+ * [md5](#torch.md5) : used for hashing strings.
 
-And some paths extensions :
+And some [paths](https://github.com/torch/paths) extensions :
  * [indexdir](#paths.indexdir) : index a directory of millions of files for faster listing.
 
 
@@ -151,6 +152,20 @@ When in doubt, first tensor has priority:
 }
 ```
 
+### torch.md5 ##
+
+Pure Lua module copy-pasted from [this repo](https://github.com/kikito/md5.lua) (for some reasons I can't get 
+git submodule to work with luarocks). The module includes two functions:
+```lua
+local md5_as_hex   = torch.md5.sumhexa(message)   -- returns a hex string
+local md5_as_data  = torch.md5.sum(message)     -- returns raw bytes
+```
+The `torch.md5.sumhexa` function takes a string and returns another string:
+```lua
+torch.md5.sumhexa('helloworld!')
+420e57b017066b44e05ea1577f6e2e12
+```
+
 <a name="paths.indexdir"/>
 ### [obj] paths.indexdir(path, ext, use_cache) ###
 ```lua
@@ -163,7 +178,7 @@ end
 ```
 
 This function can be used to create an object indexing all files having 
-extensions `ext` (a string or a list thereof) in directory `path`. 
+extensions `ext` (a string or a list thereof) in directory `path` (string or list thereof). 
 Useful for directories containing many thousands of files. The function 
 caches the resulting list to disk in `/tmp` such that it can be used 
 for later calls when `use_cache=true` (default is false).
