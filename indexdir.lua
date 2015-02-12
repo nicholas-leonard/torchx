@@ -20,7 +20,7 @@ function paths.indexdir(pathList, extensionList, use_cache)
    local fileList = torch.CharTensor()  -- path to each image in dataset
    pathList = (torch.type(pathList) == 'string') and {pathList} or pathList
    -- repository name makes cache file unique
-   local unique = table.concat(paths)..table.concat(extensionList)
+   local unique = table.concat(pathList)..table.concat(extensionList)
    -- use hash to make string shorter
    local findFile = torch.md5.sumhexa(unique)
    findFile = paths.concat(paths.dirname(os.tmpname()), findFile)

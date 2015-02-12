@@ -8,7 +8,6 @@ function torch.concat(result, tensors, dim, index)
       tensors = result
       result = tensors[index].new()
    end
-   result = tensors[index].new()
    
    assert(type(tensors) == 'table', "expecting table at arg 2")
    
@@ -44,3 +43,5 @@ function torch.concat(result, tensors, dim, index)
    end
    return result
 end
+
+torchx.Tensor.concat = torch.concat
