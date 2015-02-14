@@ -29,15 +29,31 @@ Example:
 ```
 
 <a name='torch.find'/>
-### [res] torch.find(tensor, val) ###
+### [res] torch.find(tensor, val, [dim]) ###
 Finds all indices of a given value `val` in Tensor `tensor`. 
-Returns a table of these indices.
+Returns a table of these indices by traversing the tensor one row 
+at a time. When `dim=2`, the only valid value for dim other than `nil` (the default),
+the function expects a matrix and returns the row-wise indices of each found 
+value `val` in the row.
 
-Example:
+1D example:
 ```lua
 > res = torch.find(torch.Tensor{1,2,3,1,1,2}, 1)
-> print(unpack(res))
- 1, 4, 5
+> unpack(res)
+1  4  5
+```
+
+2D example:
+```
+> tensor = torch.Tensor{{1,2,3,4,5},{5,6,0.6,0,2}}
+> unpack(torch.find(tensor, 2))
+2	10	
+> unpack(torch.find(tensor:t(), 2))
+3	10	
+> unpack(torch.find(tensor, 2, 2))
+{2}  {5}
+> unpack(torch.find(tensor:t(), 2, 2))
+{ }  {1}  { }  { }  {2}
 ```
 
 <a name='torch.group'/>

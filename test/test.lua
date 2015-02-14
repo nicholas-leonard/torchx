@@ -24,16 +24,18 @@ end
 
 function torchxtest.find()
    local tensor = torch.Tensor{1,2,3,4,5,6,0.6,0,2}
+   local indice = torch.LongTensor(torch.find(tensor, 2))
+   mytester:assertTensorEq(indice, torch.LongTensor{2,9}, 0.00001, "find (1D) err")
+   
+   local tensor = torch.Tensor{{1,2,3,4,5},{5,6,0.6,0,2}}
    local indice = torch.find(tensor, 2)
-   mytester:assertTensorEq(indice, torch.LongTensor{2,9}, 0.00001, "find err")
-   
-   indice = indice.new()
-   indice:find(tensor, 2)
-   mytester:assertTensorEq(indice, torch.LongTensor{2,9}, 0.00001, "find err")
-   
-   local indiceTbl = torch.find(tensor, 2, true)
-   mytester:assert(torch.type(indiceTbl) == 'table', "find asTable type error")
-   mytester:assertTensorEq(indice, torch.LongTensor(indiceTbl), 0.00001, "find asTable value err")
+   mytester:assertTableEq(indice, {2,10}, 0.00001, "find (2D) err")
+   local indice = torch.find(tensor:t(), 2)
+   mytester:assertTableEq(indice, {3,10}, 0.00001, "find (2D transpose) err A")
+   local indice = torch.find(tensor:t(), 5)
+   mytester:assertTableEq(indice, {2,9}, 0.00001, "find (2D transpose) err B")
+   local indice = torch.find(tensor, 2, 2)
+   mytester:assertTableEq(indice, {{2},{5}}, 0.00001, "find (2D row-wise) err")
 end
 
 function torchxtest.remap()
