@@ -1,6 +1,6 @@
 
 
-function torch.find(res, tensor, val, asTable)
+function torch.find(tensor, val)
    if not torch.isTensor(tensor) then
       asTable = val
       val = tensor
@@ -9,7 +9,6 @@ function torch.find(res, tensor, val, asTable)
          res = torch.LongTensor()
       end
    end
-   assert(tensor:dim() == 1, "torch.find only supports 1D tensors (for now)")
    local i = 1
    local indice = {}
    tensor:apply(function(x)
@@ -18,16 +17,6 @@ function torch.find(res, tensor, val, asTable)
          end
          i = i + 1
       end)
-   if asTable then
-      return indice
-   end
-   res:resize(#indice)
-   i = 0
-   res:apply(function()
-         i = i + 1
-         return indice[i]
-      end)
-   return res
+   return indice
 end
 
-torchx.Tensor.find = torch.find

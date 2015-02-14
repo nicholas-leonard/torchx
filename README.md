@@ -30,16 +30,14 @@ Example:
 
 <a name='torch.find'/>
 ### [res] torch.find(tensor, val) ###
-Finds all indices of a given value `val` in Tensor `tensor`. Returns a `torch.LongTensor` of these indices.
+Finds all indices of a given value `val` in Tensor `tensor`. 
+Returns a table of these indices.
 
 Example:
 ```lua
 > res = torch.find(torch.Tensor{1,2,3,1,1,2}, 1)
-> print(res)
- 1
- 4
- 5
-[torch.LongTensor of dimension 3]
+> print(unpack(res))
+ 1, 4, 5
 ```
 
 <a name='torch.group'/>
