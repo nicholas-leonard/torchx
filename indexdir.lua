@@ -3,7 +3,7 @@
 -- e.g. fileList = torch.indexdir("/path/to/files/", 'png', true)
 -- index the directory by creating a chartensor of files paths.
 -- returns an object with can be used to efficiently list files in dir
-function paths.indexdir(pathList, extensionList, use_cache)
+function paths.indexdir(pathList, extensionList, use_cache, ignorePattern)
    extensionList = extensionList or {'jpg', 'png','JPG','PNG','JPEG', 'ppm', 'PPM', 'bmp', 'BMP'}
    extensionList = (torch.type(extensionList) == 'string') and {extensionList} or extensionList
    
@@ -34,6 +34,9 @@ function paths.indexdir(pathList, extensionList, use_cache)
       local findOptions = ' -iname "*.' .. extensionList[1] .. '"'
       for i=2,#extensionList do
          findOptions = findOptions .. ' -o -iname "*.' .. extensionList[i] .. '"'
+      end
+      if ignorePattern then
+         findOptions = '! -iname "'..ignorePattern..'" \\(' .. findOptions .. " \\)"
       end
          
       for i, path in ipairs(pathList) do

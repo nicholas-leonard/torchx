@@ -182,7 +182,7 @@ torch.md5.sumhexa('helloworld!')
 ```
 
 <a name="paths.indexdir"/>
-### [obj] paths.indexdir(path, ext, use_cache) ###
+### [obj] paths.indexdir(path, [ext, use_cache, ignore]) ###
 ```lua
 files = torch.indexdir("/path/to/files/", 'png', true)
 images = {}
@@ -196,4 +196,5 @@ This function can be used to create an object indexing all files having
 extensions `ext` (a string or a list thereof) in directory `path` (string or list thereof). 
 Useful for directories containing many thousands of files. The function 
 caches the resulting list to disk in `/tmp` such that it can be used 
-for later calls when `use_cache=true` (default is false).
+for later calls when `use_cache=true` (default is false). 
+Argument `ignore` species a pattern to ignore (e.g. "*frame*" will ignore all files containing `"frame"`).
