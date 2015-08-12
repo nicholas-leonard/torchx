@@ -184,7 +184,7 @@ torch.md5.sumhexa('helloworld!')
 <a name="paths.indexdir"/>
 ### [obj] paths.indexdir(path, [ext, use_cache, ignore]) ###
 ```lua
-files = torch.indexdir("/path/to/files/", 'png', true)
+files = paths.indexdir("/path/to/files/", 'png', true)
 images = {}
 for i=1,files:size() do
    local img = image.load(files:filename(i))
