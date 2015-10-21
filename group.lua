@@ -29,11 +29,7 @@ function torch.group(sorted, index, tensor, samegrp, desc)
    local idx = 1
    local groups = {}
    sorted:apply(function(val)
-      if not samegrp(start_val, val) or idx == sorted:size(1) then
-         if idx == sorted:size(1) then
-            idx = idx + 1
-         end
-         
+      if not samegrp(start_val, val) then         
          groups[start_val] = {
             idx=index:narrow(1, start_idx, idx-start_idx), 
             val=sorted:narrow(1, start_idx, idx-start_idx)
@@ -41,7 +37,16 @@ function torch.group(sorted, index, tensor, samegrp, desc)
          start_val = val
          start_idx = idx
       end
+      
       idx = idx + 1
+      
+      if idx-1 == sorted:size(1) then
+         groups[start_val] = {
+            idx=index:narrow(1, start_idx, idx-start_idx), 
+            val=sorted:narrow(1, start_idx, idx-start_idx)
+         }
+      end
+      
    end)
 
    return groups, sorted, index

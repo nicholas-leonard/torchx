@@ -78,6 +78,10 @@ function torchxtest.group()
    mytester:assert(groups[5].idx:size(1) == 3)
    mytester:assertTensorEq(val, val2, 0.00001)
    mytester:assertTensorNe(idx2, idx, 0.00001)
+   -- this was failing for me
+   local tensor = torch.Tensor{1,2,0}
+   local groups, val, idx = torch.group(tensor)
+   mytester:assert(groups[1] and groups[2] and groups[0])
 end
 
 function torchxtest.concat()
@@ -96,7 +100,6 @@ function torchxtest.concat()
    res2:narrow(3,5,6):copy(tensors[2])
    res2:narrow(3,11,8):copy(tensors[3])
    mytester:assertTensorEq(res,res2,0.00001)
-   
    res:zero():concat(tensors, 3)
    mytester:assertTensorEq(res,res2,0.00001)
 end
