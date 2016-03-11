@@ -158,16 +158,16 @@ function torchx.recursiveIndex(res, src, dim, indices)
    if torch.type(src) == 'table' then
       res = (torch.type(res) == 'table') and res or {res}
       for key,_ in pairs(src) do
-         res[key], res[key] = torchx.recursiveIndex(res[key], src[key], dim, indices)
+         res[key] = torchx.recursiveIndex(res[key], src[key], dim, indices)
       end
    elseif torch.isTensor(src) then
-      res = torch.isTensor(res) or src.new()
+      res = torch.isTensor(res) and res or src.new()
       res:index(src, dim, indices)
    else
       error("expecting nested tensors or tables. Got "..
             torch.type(res).." and "..torch.type(src).." instead")
    end
-   return res, src
+   return res 
 end
 
 -- get the batch size (i.e. size of first dim for a nested tensor)
@@ -178,4 +178,36 @@ function torchx.recursiveBatchSize(input)
       assert(torch.isTensor(input))
       return input:size(1)
    end
+end
+
+function torchx.recursiveSize(input, excludedim)
+   local res
+   if torch.type(input) == 'table' then
+      res = {}
+      for k,v in pairs(input) do
+         res[k] = torchx.recursiveSize(v, excludedim)
+      end
+   else
+      assert(torch.isTensor(input))
+      res = input:size():totable()
+      if excludedim then
+         table.remove(res, excludedim)
+      end
+   end
+   return res
+end
+
+function torchx.recursiveSub(src, start, stop)
+   local res
+   if torch.type(src) == 'table' then
+      res = {}
+      for key,_ in pairs(src) do
+         res[key] = torchx.recursiveSub(src[key], start, stop)
+      end
+   elseif torch.isTensor(src) then
+      res = src:sub(start, stop)
+   else
+      error("expecting nested tensors or tables. Got "..torch.type(src).." instead")
+   end
+   return res
 end
