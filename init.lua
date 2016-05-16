@@ -17,6 +17,7 @@ torch.include('torchx', 'indexdir.lua')
 torch.include('torchx', 'dkjson.lua')
 torch.include('torchx', 'recursivetensor.lua')
 torch.include('torchx', 'Queue.lua')
+torch.include('torchx', 'AliasMultinomial.lua')
 
 torch.include('torchx', 'test.lua')
 

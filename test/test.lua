@@ -104,6 +104,33 @@ function torchxtest.concat()
    mytester:assertTensorEq(res,res2,0.00001)
 end
 
+function torchxtest.AliasMultinomial()
+   local probs = torch.Tensor(10):uniform(0,1)
+   probs:div(probs:sum())
+
+   local a = torch.Timer()
+   local am = torch.AliasMultinomial(probs)
+   print("setup in "..a:time().real.." seconds")
+
+   a:reset()
+   am:draw()
+   print("draw in "..a:time().real.." seconds")
+
+   local output = torch.LongTensor(1000, 1000)
+   a:reset()
+   am:batchdraw(output)
+   print("batchdraw in "..a:time().real.." seconds")
+
+   local counts = torch.Tensor(10):zero()
+   output:apply(function(x)
+      counts[x] = counts[x] + 1
+   end)
+   
+   counts:div(counts:sum())
+   
+   mytester:assertTensorEq(probs, counts, 0.001)
+end
+
 function torchx.test(tests)
    local oldtype = torch.getdefaulttensortype()
    torch.setdefaulttensortype('torch.FloatTensor')
