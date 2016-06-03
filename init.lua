@@ -3,7 +3,7 @@ require 'paths'
 require 'sys'
 ffi = require 'ffi'
 
-torchx = {Tensor={}}
+torchx = {Tensor={}, version=1}
 
 
 torch.include('torchx', 'extend.lua')
@@ -18,6 +18,7 @@ torch.include('torchx', 'dkjson.lua')
 torch.include('torchx', 'recursivetensor.lua')
 torch.include('torchx', 'Queue.lua')
 torch.include('torchx', 'AliasMultinomial.lua')
+torch.include('torchx', 'MultiCudaTensor.lua')
 
 torch.include('torchx', 'test.lua')
 
