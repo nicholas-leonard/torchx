@@ -31,6 +31,10 @@ function MCT:size(dim)
    return torch.LongStorage(self._size)
 end
 
+function MCT:dim()
+   return self:size():size()
+end
+
 function MCT:zero()
    for i,tensor in ipairs(self.tensors) do
       cutorch.withDevice(tensor:getDevice(), function()
@@ -277,3 +281,22 @@ function MCT:clone()
    f:close()
    return clone
 end
+
+function MCT:uniform(lower, upper)
+   for i,tensor in ipairs(self.tensors) do
+      cutorch.withDevice(tensor:getDevice(), function() tensor:uniform(lower, upper) end)
+   end
+   return self
+end
+
+-- math.pow(gradParam:norm(),2)
+function MCT:norm(...)
+   assert(#{...} == 0)
+   local norm = 0
+   for i,tensor in ipairs(self.tensors) do
+      norm = norm + cutorch.withDevice(tensor:getDevice(), function() return math.pow(tensor:norm(),2) end)
+   end
+   return math.sqrt(norm)
+end
+
+assert(not MCT.storage, "If you ever define storage, you will need to modify Module.sharedClone in dpnn.Module")
