@@ -11,10 +11,8 @@ local MCT = torch.class("torch.MultiCudaTensor")
 local buffers1, buffers2 = {}, {}
 
 function MCT:__init(catdim, tensors)
-   assert(torch.type(catdim) == 'number')
-   self.catdim = catdim
+   self.catdim = catdim or -1
    self.tensors = tensors or {}
-   self:size()
 end
 
 function MCT:size(dim)
@@ -43,7 +41,7 @@ function MCT:zero()
 end
 
 function MCT:t()
-   assert(#self._size == 2)
+   assert(self:size():size() == 2)
    return self:transpose(1,2)
 end
 
@@ -166,6 +164,14 @@ function MCT:add(value, src)
    return self
 end
 
+-- momGradParams[i]:mul(momFactor)
+function MCT:mul(value)
+   for i,tensor in ipairs(self.tensors) do
+      cutorch.withDevice(tensor:getDevice(), function() tensor:mul(value) end)
+   end
+   return self
+end
+
 -- self.weight.addmm(self.linout, 0, self.linout, 1, input, self.weight:t())
 -- res = (v1 * M) + (v2 * mat1 * mat2)
 function MCT.addmm(res, v1, M, v2, mat1, mat2)
@@ -224,6 +230,7 @@ function MCT:copy(src)
    for i,tensor in ipairs(src.tensors) do
       self.tensors[i]:copy(tensor)
    end
+   return self
 end
 
 function MCT:write(file)

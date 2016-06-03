@@ -193,6 +193,13 @@ function torchxtest.MultiCudaTensor()
    mytester:assertTensorEq(weight[{{},{1, outputsize/2}}]:float(), mweight.tensors[1]:float(), 0.00001)
    mytester:assertTensorEq(weight[{{},{(outputsize/2)+1, outputsize}}]:float(), mweight.tensors[2]:float(), 0.00001)
    
+   -- test mul (updateGradParameters)
+   mweight:mul(2)
+   weight:mul(2)
+   
+   mytester:assertTensorEq(weight[{{},{1, outputsize/2}}]:float(), mweight.tensors[1]:float(), 0.00001)
+   mytester:assertTensorEq(weight[{{},{(outputsize/2)+1, outputsize}}]:float(), mweight.tensors[2]:float(), 0.00001)
+   
    -- test addmm
    local input = torch.CudaTensor(5, outputsize):uniform(0,1)
    local output = torch.CudaTensor(5, inputsize):zero()
