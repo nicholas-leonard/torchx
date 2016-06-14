@@ -209,7 +209,10 @@ function MCT.addmm(res, v1, M, v2, mat1, mat2)
       if device == resdevice then
          res:add(v2, buffers1[device])
       else
-         buffers1[resdevice]:resizeAs(res):copy(buffers1[device])
+         cutorch.withDevice(resdevice, function()
+            buffers1[resdevice] = buffers1[resdevice] or res.new()
+            buffers1[resdevice]:resizeAs(res):copy(buffers1[device])
+         end)
          res:add(v2, buffers1[resdevice])
       end
       
