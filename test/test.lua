@@ -131,6 +131,136 @@ function torchxtest.AliasMultinomial()
    mytester:assertTensorEq(probs, counts, 0.001)
 end
 
+function torchxtest.MultiCudaTensor()
+   if not pcall(function() require 'cutorch' end) then
+      return
+   end
+   
+   if cutorch.getDeviceCount() < 2 then
+      return
+   end
+   
+   local origdevice = cutorch.getDevice()
+   
+   local inputsize, outputsize = 200, 100
+   local weight = torch.CudaTensor(inputsize, outputsize):uniform(0,1)
+   local tensors = {
+      cutorch.withDevice(1, function() return weight[{{},{1, outputsize/2}}]:clone() end), 
+      cutorch.withDevice(2, function() return weight[{{},{(outputsize/2)+1, outputsize}}]:clone() end)
+   }
+   local mweight = torch.MultiCudaTensor(2, tensors)
+   mytester:assert(mweight.catdim == 2)
+   
+   -- test size
+   mytester:assertTableEq(mweight:size():totable(), {inputsize, outputsize}, 0.000001)
+   mytester:assert(mweight:size(1) == inputsize)
+   mytester:assert(mweight:size(2) == outputsize)
+   
+   -- test dim
+   mytester:assert(mweight:dim() == 2)
+   
+   -- test transpose
+   local mwt = mweight:t()
+   mytester:assert(mwt.catdim == 1)
+   mytester:assertTableEq(mwt:size():totable(), {outputsize, inputsize}, 0.000001)
+   
+   -- test index
+   local nindex = 3
+   local res = torch.CudaTensor()
+   local indices = torch.LongTensor(nindex):random(1,inputsize):cuda()
+   mweight.index(res, mweight, 1, indices)
+   
+   local res2 = torch.CudaTensor()
+   weight.index(res2, weight, 1, indices)
+   
+   mytester:assert(res:getDevice() == res2:getDevice())
+   mytester:assertTensorEq(res, res2, 0.00001)
+   
+   mytester:assertTensorEq(weight[{{},{1, outputsize/2}}]:float(), mweight.tensors[1]:float(), 0.00001)
+   mytester:assertTensorEq(weight[{{},{(outputsize/2)+1, outputsize}}]:float(), mweight.tensors[2]:float(), 0.00001)
+   
+   -- test indexAdd
+   
+   local src = torch.CudaTensor(nindex, outputsize):fill(1)
+   
+   weight:indexAdd(1, indices, src)
+   mweight:indexAdd(1, indices, src)
+   
+   mytester:assertTensorEq(weight[{{},{1, outputsize/2}}]:float(), mweight.tensors[1]:float(), 0.00001)
+   mytester:assertTensorEq(weight[{{},{(outputsize/2)+1, outputsize}}]:float(), mweight.tensors[2]:float(), 0.00001)
+   
+   -- test add (updateParameters)
+   mweight:add(1, mweight)
+   weight:add(1, weight)
+   
+   mytester:assertTensorEq(weight[{{},{1, outputsize/2}}]:float(), mweight.tensors[1]:float(), 0.00001)
+   mytester:assertTensorEq(weight[{{},{(outputsize/2)+1, outputsize}}]:float(), mweight.tensors[2]:float(), 0.00001)
+   
+   -- test mul (updateGradParameters)
+   mweight:mul(2)
+   weight:mul(2)
+   
+   mytester:assertTensorEq(weight[{{},{1, outputsize/2}}]:float(), mweight.tensors[1]:float(), 0.00001)
+   mytester:assertTensorEq(weight[{{},{(outputsize/2)+1, outputsize}}]:float(), mweight.tensors[2]:float(), 0.00001)
+   
+   -- test addmm
+   local input = torch.CudaTensor(5, outputsize):uniform(0,1)
+   local output = torch.CudaTensor(5, inputsize):zero()
+   mweight.addmm(output, 0, output, 1, input, mweight:t())
+   
+   local output2 = output:clone():zero()
+   weight.addmm(output2, 0, output2, 1, input, weight:t())
+   
+   mytester:assertTensorEq(output, output2, 0.0001)
+   
+   -- test norm 
+   local norm = mweight:norm()
+   local norm2 = weight:norm()
+   mytester:assert(math.abs(norm - norm2) < 0.0001)
+   
+   -- test zero
+   mweight:zero()
+   for i=1,2 do
+      cutorch.withDevice(i, function() 
+         mytester:assert(mweight.tensors[i]:sum() == 0)
+      end)
+   end
+   
+   -- test clone
+   local mw2 = mweight:clone()
+   mytester:assert(mw2.tensors[1]:getDevice() == mweight.tensors[1]:getDevice())
+   mytester:assert(mw2.tensors[2]:getDevice() == mweight.tensors[2]:getDevice())
+   cutorch.withDevice(1, function() mytester:assertTensorEq(mw2.tensors[1], mweight.tensors[1], 0.000001) end)
+   cutorch.withDevice(2, function() mytester:assertTensorEq(mw2.tensors[2], mweight.tensors[2], 0.000001) end)
+   
+   -- test resizeAs
+   mw2.tensors[1]:resize(mw2.tensors[1]:size(1)/2, mw2.tensors[1]:size(2))
+   mw2.tensors[2]:resize(mw2.tensors[2]:size(1)/2, mw2.tensors[2]:size(2))
+   
+   mw2:resizeAs(mweight)
+   
+   mytester:assertTableEq(mw2.tensors[1]:size():totable(),  mweight.tensors[1]:size():totable(), 0.000001)
+   mytester:assertTableEq(mw2.tensors[2]:size():totable(),  mweight.tensors[2]:size():totable(), 0.000001)
+   cutorch.withDevice(1, function() mytester:assertTensorEq(mw2.tensors[1], mweight.tensors[1], 0.000001) end)
+   cutorch.withDevice(2, function() mytester:assertTensorEq(mw2.tensors[2], mweight.tensors[2], 0.000001) end)
+   
+   -- test copy
+   cutorch.withDevice(1, function() mweight.tensors[1]:uniform(0,1) end)
+   cutorch.withDevice(2, function() mweight.tensors[2]:uniform(0,1) end)
+   
+   mw2:copy(mweight)
+   cutorch.withDevice(1, function() mytester:assertTensorEq(mw2.tensors[1], mweight.tensors[1], 0.000001) end)
+   cutorch.withDevice(2, function() mytester:assertTensorEq(mw2.tensors[2], mweight.tensors[2], 0.000001) end)
+   
+   -- test uniform
+   mw2:uniform(-2, -1)
+   cutorch.withDevice(1, function() mytester:assert(mw2.tensors[1]:min() >= -2 and mw2.tensors[1]:max() <= -1) end)
+   cutorch.withDevice(2, function() mytester:assert(mw2.tensors[2]:min() >= -2 and mw2.tensors[2]:max() <= -1) end)
+   
+   mytester:assert(cutorch.getDevice() == origdevice)
+   
+end
+
 function torchx.test(tests)
    local oldtype = torch.getdefaulttensortype()
    torch.setdefaulttensortype('torch.FloatTensor')
