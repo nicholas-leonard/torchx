@@ -6,6 +6,7 @@
 -- NCEModule requires.
 ------------------------------------------------------------------------
 local MCT = torch.class("torch.MultiCudaTensor")
+MCT.__noGPU__ = true -- will prevent nn.GPU from switching devices
 
 -- each buffer is indexed by device
 local buffers1, buffers2 = {}, {}
